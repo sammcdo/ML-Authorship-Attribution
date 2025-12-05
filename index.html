@@ -59,16 +59,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="writeup_files/libs/clipboard/clipboard.min.js"></script>
-<script src="writeup_files/libs/quarto-html/quarto.js"></script>
-<script src="writeup_files/libs/quarto-html/popper.min.js"></script>
-<script src="writeup_files/libs/quarto-html/tippy.umd.min.js"></script>
-<script src="writeup_files/libs/quarto-html/anchor.min.js"></script>
-<link href="writeup_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="writeup_files/libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="writeup_files/libs/bootstrap/bootstrap.min.js"></script>
-<link href="writeup_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="writeup_files/libs/bootstrap/bootstrap-8a79a254b8e706d3c925cde0a310d4f0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="index_files/libs/clipboard/clipboard.min.js"></script>
+<script src="index_files/libs/quarto-html/quarto.js"></script>
+<script src="index_files/libs/quarto-html/popper.min.js"></script>
+<script src="index_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="index_files/libs/quarto-html/anchor.min.js"></script>
+<link href="index_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="index_files/libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="index_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="index_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="index_files/libs/bootstrap/bootstrap-8a79a254b8e706d3c925cde0a310d4f0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
@@ -140,6 +140,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<p>Honors Petition Project</p>
+<p>Liberty University - School of Business</p>
+<p><a href="https://github.com/sammcdo/ML-Authorship-Attribution">Github Link</a></p>
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
 <p>“For as long as universities have existed, one rule has stood firm: a student’s work should reflect their own understanding…What happens when the ‘author’ of the borrowed words isn’t a person at all, but an algorithm?” Nneoma Agwu-Okoro raised this important question in a recent article on AI and plagiarism (2025). She goes on, “not long ago, a philosophy professor in the US was left impressed by what seemed to be a brilliantly argued essay… He later discovered it had been written almost entirely by AI.” (2025) Identifying the author of a written work is more important than ever before.</p>
@@ -152,7 +155,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The dataset used for this demonstration is the Blog Authorship Corpus (Schler et al., 2006). The corpus itself has over six hundred thousand posts, all over 200 words long. This resource is well established in the authorship attribution field, being used as a test source in foundational works such as the creation of the BertAA model (Fabien et al., 2020).</p>
 <p>This dataset was then filtered to narrow down the number of authors being used in this experiment. The 15 authors with the highest total number of posts over 1000 words were selected. Each of these authors then had their top 40 longest works extracted. The works were then shortened to 1000 words each. This left the final dataset with 600 blog posts written by 15 distinct authors and each work being 1000 words long.</p>
 <p>The texts were also cleaned of their HTML embeds, ‘words’ made up only of symbols, and the word urlLink from cleaning of the data by the original authors.</p>
-<div id="1b58b848" class="cell" data-execution_count="1">
+<div id="80956f5f" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -160,7 +163,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(filename, index_col<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>df.head(n<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="5">
+<div class="cell-output cell-output-display" data-execution_count="1">
 <div>
 
 
@@ -218,7 +221,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="overview" class="level3">
 <h3 class="anchored" data-anchor-id="overview">Overview</h3>
-<p>The features that resulted can be seen in the following correlation heat map. The features do not strongly correlate to the author of the blog so there is no data leaking through in any of the features. This also means that a more complex model will have the ability to link the non-linear relationships and feature interactions taking place under the surface</p>
+<p>The features that resulted can be seen in the following correlation heat map. The features do not strongly correlate to the author of the blog so there is no data leaking through in any of the features. This also means that a more complex model will have the ability to link the non-linear relationships and feature interactions taking place under the surface.</p>
 <p><img src="output/correl.png" class="img-fluid"></p>
 </section>
 </section>
