@@ -155,7 +155,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The dataset used for this demonstration is the Blog Authorship Corpus (Schler et al., 2006). The corpus itself has over six hundred thousand posts, all over 200 words long. This resource is well established in the authorship attribution field, being used as a test source in foundational works such as the creation of the BertAA model (Fabien et al., 2020).</p>
 <p>This dataset was then filtered to narrow down the number of authors being used in this experiment. The 15 authors with the highest total number of posts over 1000 words were selected. Each of these authors then had their top 40 longest works extracted. The works were then shortened to 1000 words each. This left the final dataset with 600 blog posts written by 15 distinct authors and each work being 1000 words long.</p>
 <p>The texts were also cleaned of their HTML embeds, ‘words’ made up only of symbols, and the word urlLink from cleaning of the data by the original authors.</p>
-<div id="65601356" class="cell" data-execution_count="1">
+<div id="3826bafc" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -163,7 +163,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(filename, index_col<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>df.head(n<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="2">
+<div class="cell-output cell-output-display" data-execution_count="1">
 <div>
 
 
@@ -254,7 +254,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="neural-network-classification" class="level3">
 <h3 class="anchored" data-anchor-id="neural-network-classification">Neural Network Classification</h3>
 <p>Neural Networks are also a common method for achieving accurate classification of authors based on stylometric feature sets (Jafariakinabad and Hua, 2020). In this implementation, 3 layers of Dense nodes with Batch Normalization and Dropout are followed by a final classification Dense layer. This model definitely seems to be suffering from a lack of training data. The batch size is very low because of the low number of samples in the training set.</p>
-<p>This model achieved 94% accuracy. The confusion matrix for this model can be seen below.</p>
+<p>This model achieved 92% accuracy. The confusion matrix for this model can be seen below.</p>
 <p><img src="output/NN_classification.png" class="img-fluid" width="560"></p>
 </section>
 </section>

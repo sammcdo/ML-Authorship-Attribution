@@ -122,7 +122,7 @@ This model achieved 92% accuracy. The confusion matrix for this model can be see
 
 Neural Networks are also a common method for achieving accurate classification of authors based on stylometric feature sets (Jafariakinabad and Hua, 2020). In this implementation, 3 layers of Dense nodes with Batch Normalization and Dropout are followed by a final classification Dense layer. This model definitely seems to be suffering from a lack of training data. The batch size is very low because of the low number of samples in the training set.
 
-This model achieved 94% accuracy. The confusion matrix for this model can be seen below.
+This model achieved 92% accuracy. The confusion matrix for this model can be seen below.
 
 ![](output/NN_classification.png){width="560"}
 
