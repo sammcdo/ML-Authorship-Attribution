@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Sam McDowell">
+<meta name="dcterms.date" content="2025-12-04">
+
+<title>Authorship Attribution with Machine Learning</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="writeup_files/libs/clipboard/clipboard.min.js"></script>
+<script src="writeup_files/libs/quarto-html/quarto.js"></script>
+<script src="writeup_files/libs/quarto-html/popper.min.js"></script>
+<script src="writeup_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="writeup_files/libs/quarto-html/anchor.min.js"></script>
+<link href="writeup_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="writeup_files/libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="writeup_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="writeup_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="writeup_files/libs/bootstrap/bootstrap-8a79a254b8e706d3c925cde0a310d4f0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#dataset" id="toc-dataset" class="nav-link" data-scroll-target="#dataset">Dataset</a></li>
+  <li><a href="#feature-engineering" id="toc-feature-engineering" class="nav-link" data-scroll-target="#feature-engineering">Feature Engineering</a>
+  <ul class="collapse">
+  <li><a href="#vocabulary" id="toc-vocabulary" class="nav-link" data-scroll-target="#vocabulary">Vocabulary</a></li>
+  <li><a href="#readability" id="toc-readability" class="nav-link" data-scroll-target="#readability">Readability</a></li>
+  <li><a href="#tagging" id="toc-tagging" class="nav-link" data-scroll-target="#tagging">Tagging</a></li>
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">Overview</a></li>
+  </ul></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a>
+  <ul class="collapse">
+  <li><a href="#bert" id="toc-bert" class="nav-link" data-scroll-target="#bert">BERT</a></li>
+  <li><a href="#centroid-based-authorship-attribution" id="toc-centroid-based-authorship-attribution" class="nav-link" data-scroll-target="#centroid-based-authorship-attribution">Centroid-Based Authorship Attribution</a></li>
+  <li><a href="#knn-clusters" id="toc-knn-clusters" class="nav-link" data-scroll-target="#knn-clusters">KNN Clusters</a></li>
+  <li><a href="#random-forest-classifiers" id="toc-random-forest-classifiers" class="nav-link" data-scroll-target="#random-forest-classifiers">Random Forest Classifiers</a></li>
+  <li><a href="#neural-network-classification" id="toc-neural-network-classification" class="nav-link" data-scroll-target="#neural-network-classification">Neural Network Classification</a></li>
+  </ul></li>
+  <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion">Discussion</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Authorship Attribution with Machine Learning</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Sam McDowell </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">December 4, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>“For as long as universities have existed, one rule has stood firm: a student’s work should reflect their own understanding…What happens when the ‘author’ of the borrowed words isn’t a person at all, but an algorithm?” Nneoma Agwu-Okoro raised this important question in a recent article on AI and plagiarism (2025). She goes on, “not long ago, a philosophy professor in the US was left impressed by what seemed to be a brilliantly argued essay… He later discovered it had been written almost entirely by AI.” (2025) Identifying the author of a written work is more important than ever before.</p>
+<p>This creates opportunities to bring the skill sets of modern science and engineering to bear on the problem. Identifying authorship is not a new idea. There are multiple historical examples of authors using pseudonyms to publish their works. In looking for ways to find the real penmen responsible, the study of stylometry was born. In 1964, Professors David Wallace and Frederick Mosteller first used tools from their background in statistics to determine the authorship of written works (Mercer, 2017). They called their new collection of techniques stylometry (Mercer, 2017).</p>
+<p>Stylometry is the use of statistical methods to analyze linguistic style (Wermer-Colman, 2023). A unique linguistic style can be used to determine authorship. As questions about the authenticity of written works are on the rise, this is practical opportunity to apply these ideas and explore the best methods of determining authorship. Additionally, as techniques in Machine Learning become more available and more accessible, it opens the opportunity to use the textual features extracted by stylometric methods for use in Machine Learning models.</p>
+<p>This petition demonstrates several methods for determining authorship using popular Machine Learning tools. It uses various types of classification to determine authorship from a pool of works.</p>
+</section>
+<section id="dataset" class="level2">
+<h2 class="anchored" data-anchor-id="dataset">Dataset</h2>
+<p>The dataset used for this demonstration is the Blog Authorship Corpus (Schler et al., 2006). The corpus itself has over six hundred thousand posts, all over 200 words long. This resource is well established in the authorship attribution field, being used as a test source in foundational works such as the creation of the BertAA model (Fabien et al., 2020).</p>
+<p>This dataset was then filtered to narrow down the number of authors being used in this experiment. The 15 authors with the highest total number of posts over 1000 words were selected. Each of these authors then had their top 40 longest works extracted. The works were then shortened to 1000 words each. This left the final dataset with 600 blog posts written by 15 distinct authors and each work being 1000 words long.</p>
+<p>The texts were also cleaned of their HTML embeds, ‘words’ made up only of symbols, and the word urlLink from cleaning of the data by the original authors.</p>
+<div id="1b58b848" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>filename <span class="op">=</span> <span class="st">"./data/preprocessed.csv"</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(filename, index_col<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>df.head(n<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">id</th>
+<th data-quarto-table-cell-role="th">text</th>
+<th data-quarto-table-cell-role="th">text_len</th>
+<th data-quarto-table-cell-role="th">word_count</th>
+<th data-quarto-table-cell-role="th">prp_text</th>
+<th data-quarto-table-cell-role="th">sentence_count</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>215223</td>
+<td>I Can See Clearly Now I went to...</td>
+<td>5150</td>
+<td>1000</td>
+<td>I Can See Clearly Now I went to a psychic toda...</td>
+<td>139</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="feature-engineering" class="level2">
+<h2 class="anchored" data-anchor-id="feature-engineering">Feature Engineering</h2>
+<p>The models used in this work rely on stylometric features extracted from the raw texts. These are split into several categories: vocabulary, readability, and tagging.</p>
+<section id="vocabulary" class="level3">
+<h3 class="anchored" data-anchor-id="vocabulary">Vocabulary</h3>
+<p>The vocabulary features start with the Type Token Ratio (TTR). This statistic was first used in the 1950s and has since become a staple in textual features (Cunningham and Haley, 2020). This is the ratio of the number of unique words divided by the total words in the text. It is a well-accepted measure of vocabulary diversity (Cunningham and Haley, 2020). Additionally, the raw number of unique words is included in the features.</p>
+<p>The next feature is the stop word ratio, or the ratio of stop words to total words. This was introduced in the foundational work in identifying the authors of the anonymous Federalist Papers in 1966 (Kendall et al.) and continues to be in use today. It is still popular because it is “immune to topic bias” (Koppel et al., 2011).</p>
+<p>The next feature is the Hapax Legomena: the number of words used only once in the text (Mardaga, 2012). The name is such because this metric has existed since before the time of Alexander the Great (Mardaga, 2012). The number of words used only twice, or Dislegomena, are also recorded (Mardaga, 2012).</p>
+</section>
+<section id="readability" class="level3">
+<h3 class="anchored" data-anchor-id="readability">Readability</h3>
+<p>The first measure of readability is the average number of syllables per word. This is an important part of many modern readability measures. It was suggested as a primary measure of readability for the military in 1975 (Kincaid et al.).</p>
+<p>Sentence length is another very common measure of an author’s style (Holmes, 1998). The average and standard deviation of the length are included in the dataset. Average word length and word length standard deviation are also commonly used and included in the dataset (Stamatatos, 2009).</p>
+<p>Additionally, there are several standard readability formulas that are included in the dataset. The first is the Flesch Readability Score, which measures the difficulty and complexity of reading a set of text (Eleyan et al., 2020). While this formula has been in use since the early days of stylometry, it is still a standard in readability measurement (Jindal and MacDermid, 2017). It is based on average sentence length and number of syllables (Eleyan et al., 2020).</p>
+<p>The second readability calculation is the Dale-Chall Readability Score. This score is supposed to output the suggested grade level of a written work (Gencer, 2024). This formula uses a base list of words deemed suitable for 4th or 5th grade readers and compares how many words are harder than what is on the list (Gencer, 2024). The corpus is taken from ReadabilityFormulas.com (2025).</p>
+<p>The final readability measure included in the dataset is the Gunning Fog Index. This measurement marks words as difficult based on their syllables and the number of words per sentence (Plotnikov, 2020). Although developed in the 1940s (Gunning, 1969), it is popular in small sample authorship analysis (Goh et al., 2007).</p>
+</section>
+<section id="tagging" class="level3">
+<h3 class="anchored" data-anchor-id="tagging">Tagging</h3>
+<p>The final section of data in the dataset is counts of tagged items in the text. The first set of tag counts included are parts of speech. These are very important because each author has their own unique use of sentence structure and phraseology that can be seen here (Gholami-Dasgerdi and Feizi-Derakhshi, 2021). For example, part of speech tagging is all that is needed to classify verse and prose (Chen et al., 2024).</p>
+<p>The next group of tagged items are counts of tagged punctuation types. These include periods, exclamations and questions. This is a very common and useful feature that is used for differentiating writing style (Stamatatos, 2009).</p>
+<p>The final category of tagged items is sentence structure. Each sentence is categorized as simple, compound, complex or compound-complex. This has been used very effectively in previous work (Feng et al., 2012).</p>
+</section>
+<section id="overview" class="level3">
+<h3 class="anchored" data-anchor-id="overview">Overview</h3>
+<p>The features that resulted can be seen in the following correlation heat map. The features do not strongly correlate to the author of the blog so there is no data leaking through in any of the features. This also means that a more complex model will have the ability to link the non-linear relationships and feature interactions taking place under the surface</p>
+<p><img src="output/correl.png" class="img-fluid"></p>
+</section>
+</section>
+<section id="results" class="level2">
+<h2 class="anchored" data-anchor-id="results">Results</h2>
+<section id="bert" class="level3">
+<h3 class="anchored" data-anchor-id="bert">BERT</h3>
+<p>The first model used for Authorship Attribution is BERT. The BERT Model is a very popular transformer model that was built to understand text deeply (Fabien et al., 2020). A common method for using BERT for classification is to append an additional layer for classification and train it for its new task (Fabien et al., 2020). This implementation is a dense layer on top of the final pooling of the transformer (Hugging Face, 2019).</p>
+<p>This model achieved 87% accuracy. The confusion matrix for this model can be seen below.</p>
+<p><img src="output/BERT_classification.png" class="img-fluid" width="560"></p>
+</section>
+<section id="centroid-based-authorship-attribution" class="level3">
+<h3 class="anchored" data-anchor-id="centroid-based-authorship-attribution">Centroid-Based Authorship Attribution</h3>
+<p>The second model based on pre-trained models is Centroid-Based Authorship Attribution. In this method, embeddings from a pre-trained model (MPNET Base v2 in this case) are used as a means of classification (Sohrab et al., 2015). To do this, the training texts are embedded and then a mean of the training texts is found to create a centroid (Sohrab et al., 2015). The test texts are then embedded and selected based on which centroid it is closest to (Sohrab et al., 2015). This is done with cosine similarity (Rossiello et al., 2017).</p>
+<p>This model achieved 76% accuracy. The confusion matrix for this model can be seen below.</p>
+<p><img src="output/CosSim_classification.png" class="img-fluid" width="560"></p>
+</section>
+<section id="knn-clusters" class="level3">
+<h3 class="anchored" data-anchor-id="knn-clusters">KNN Clusters</h3>
+<p>K-Nearest Neighbors (KNN) is a standard classification Machine Learning algorithm for labeled data. In this case, the feature set engineered from the texts was used to train a KNN model. KNNs have been used successfully in authorship attribution in previous studies (Luyckx and Daelemans, 2008).</p>
+<p>This model achieved 75% accuracy. The confusion matrix for this model can be seen below.</p>
+<p><img src="output/KNN_classification.png" class="img-fluid" width="560"></p>
+</section>
+<section id="random-forest-classifiers" class="level3">
+<h3 class="anchored" data-anchor-id="random-forest-classifiers">Random Forest Classifiers</h3>
+<p>Given a text feature set, it can be very effective to use a Random Forest Classifier to select the author (Khonji, et al., 2015). In this case, it was very easy to get high accuracy. This was a very effective model in terms of complexity for accuracy trade off.</p>
+<p>This model achieved 92% accuracy. The confusion matrix for this model can be seen below.</p>
+<p><img src="output/RF_classification.png" class="img-fluid" width="560"></p>
+</section>
+<section id="neural-network-classification" class="level3">
+<h3 class="anchored" data-anchor-id="neural-network-classification">Neural Network Classification</h3>
+<p>Neural Networks are also a common method for achieving accurate classification of authors based on stylometric feature sets (Jafariakinabad and Hua, 2020). In this implementation, 3 layers of Dense nodes with Batch Normalization and Dropout are followed by a final classification Dense layer. This model definitely seems to be suffering from a lack of training data. The batch size is very low because of the low number of samples in the training set.</p>
+<p>This model achieved 94% accuracy. The confusion matrix for this model can be seen below.</p>
+<p><img src="output/NN_classification.png" class="img-fluid" width="560"></p>
+</section>
+</section>
+<section id="discussion" class="level2">
+<h2 class="anchored" data-anchor-id="discussion">Discussion</h2>
+<p>The results achieved by these models were impressive. There were two different model types that reached 90% accuracy in authorship attribution. However, each model likely has room for improvement.</p>
+<p>The BERT model most likely needed more training data. This would have included more samples and fewer classes. From how quickly it generalized, it seemed to be learning very well. It seemed to need more data to generalize. However, it was an effective baseline to evaluate the remaining models.</p>
+<p>The Embedding Centroid method was not effective enough for continued use. It may have use in comparison of two authors but it seemed to get confused by the large number of classes.</p>
+<p>The KNN classification method consistently under performed, despite training. Different distance metrics and neighbors were ineffective. Dimensionality reduction with Principal Component Analysis was also ineffective. It might have been suffered from having too many irrelevant features that it could not filter out on its own.</p>
+<p>The Random Forest classification worked excellently. It is much less affected by irrelevant data points. This might be helping it extract the most information from these models. A future improvement could be using boosted trees to see if the accuracy could be improved more.</p>
+<p>The final model tested was a Neural Network of the features in the dataset. It was the most successful at classifying the authors. This is important because it is the most flexible for future applications. Compared to the baseline BERT model, this model was 7% more accurate in classification. This could be easily adapted for more authors and more data to create a very robust authorship attribution method.</p>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>This petition has shown that authorship classification is a simple task for Machine Learning. The results strongly showed that authorship can be determined both from raw textual input to a model and by features extracted from the texts. The feature engineering done for this dataset could be applied to new texts for a similar set up. The small dataset consisting of only 40 data points per class is a reasonable simulation of a real-world small dataset use case.</p>
+<p>As AI authored works are on the rise, it is hopeful that Machine Learning can help identify writing patterns that make our writing creative, unique and individual to each of us.</p>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<p>Adem Gencer. (2024). Readability analysis of ChatGPT’s responses on lung cancer. <em>Scientific Reports</em>, <em>14</em>(1). https://doi.org/10.1038/s41598-024-67293-2</p>
+<p>Agwu-Okoro, N. G. (2025, September 12). <em>The AI DILEMMA IN HIGHER EDUCATION: Balancing Innovation and Authorship</em>. Substack.com; Legal Bytes. https://legalbytes.substack.com/p/the-ai-dilemma-in-higher-education</p>
+<p>Cunningham, K. T., &amp; Haley, K. L. (2020). Measuring Lexical Diversity for Discourse Analysis in Aphasia: Moving-Average Type–Token Ratio and Word Information Measure. <em>Journal of Speech, Language, and Hearing Research</em>, <em>63</em>(3), 710–721. https://doi.org/10.1044/2019_jslhr-19-00226</p>
+<p>Eleyan, D., Othman, A., &amp; Eleyan, A. (2020). Enhancing Software Comments Readability Using Flesch Reading Ease Score. <em>Information</em>, <em>11</em>(9), 430. https://doi.org/10.3390/info11090430</p>
+<p>Fabien, M., Villatoro-Tello, E., Motlícek, P., &amp; Parida, S. (2020). BertAA : BERT fine-tuning for Authorship Attribution. <em>International Conference on Networks</em>, 127–137.</p>
+<p>Feng, S., Banerjee, R., &amp; Choi, Y. (2012). Characterizing Stylistic Elements in Syntactic Structure. <em>ACL Anthology</em>, 1522–1533. https://aclanthology.org/D12-1139/</p>
+<p>Gholami-Dastgerdi, P., &amp; Feizi-Derakhshi, M.-R. (2021). Part of Speech Tagging Using Part of Speech Sequence Graph. <em>Annals of Data Science</em>. https://doi.org/10.1007/s40745-021-00359-4</p>
+<p>Goh, O. S., Fung, C. C., Depickere, A., &amp; Wong, K. W. (2007). Using Gunnnig-Fog Index to Assess Instant Messages Readability from ECAs. <em>CiteSeer X (the Pennsylvania State University)</em>. https://doi.org/10.1109/icnc.2007.800</p>
+<p>Gunning, R. (1969). The Fog Index After Twenty Years. <em>Journal of Business Communication</em>, <em>6</em>(2), 3–13. https://doi.org/10.1177/002194366900600202</p>
+<p>Holmes, D. I. (1998). The Evolution of Stylometry in Humanities Scholarship. <em>Literary and Linguistic Computing</em>, <em>13</em>(3), 111–117. https://doi.org/10.1093/llc/13.3.111</p>
+<p>Hugging Face. (2019). <em>BERT</em>. Huggingface.co. https://huggingface.co/docs/transformers/v4.37.1/en/model_doc/bert#transformers.BertForSequenceClassification</p>
+<p>Jafariakinabad, F., &amp; Hua, K. A. (2020). <em>A Self-supervised Representation Learning of Sentence Structure for Authorship Attribution</em>. ArXiv.org. https://arxiv.org/abs/2010.06786</p>
+<p>Jindal, P., &amp; MacDermid, J. (2017). Assessing reading levels of health information: uses and limitations of flesch formula. <em>Education for Health</em>, <em>30</em>(1), 84. https://doi.org/10.4103/1357-6283.210517</p>
+<p>Kendall, M. G., Mosteller, F., &amp; Wallace, D. L. (1966). Inference and Disputed Authorship: The Federalist. <em>Biometrics</em>, <em>22</em>(1), 200. https://doi.org/10.2307/2528232</p>
+<p>Khonji, M., Iraqi, Y., &amp; Jones, A. (2015, May 1). <em>An evaluation of authorship attribution using random forests</em>. IEEE Xplore. https://doi.org/10.1109/ICTRC.2015.7156423</p>
+<p>Kincaid, J. P., Fishburne, J., Rogers, R. L., &amp; Chissom, B. S. (1975, February 1). <em>Derivation of New Readability Formulas (Automated Readability Index, Fog Count and Flesch Reading Ease Formula) for Navy Enlisted Personnel</em>. Apps.dtic.mil. https://apps.dtic.mil/sti/citations/ADA006655</p>
+<p>Koppel, M., Schler, J., &amp; Argamon, S. (2011). Authorship attribution in the wild. <em>Language Resources and Evaluation</em>, <em>45</em>(1), 83–94. JSTOR. https://doi.org/10.2307/41486029</p>
+<p>Luyckx, K., &amp; Daelemans, W. (2008). Authorship Attribution and Verification with Many Authors and Limited Data. <em>ACL Anthology</em>, 513–520. https://aclanthology.org/C08-1065/</p>
+<p>Mardaga, H. (2012). Hapax Legomena: A Neglected Field in Biblical Studies. <em>Currents in Biblical Research</em>, <em>10</em>(2), 264–274. https://doi.org/10.1177/1476993x11398845</p>
+<p>Mercer, D. (2017, October 25). <em>David L. Wallace, statistician who helped identify Federalist Papers authors, 1928-2017</em>. University of Chicago News. https://news.uchicago.edu/story/david-l-wallace-statistician-who-helped-identify-federalist-papers-authors-1928-2017</p>
+<p>Plotnikov, A. V. (2020). Gunning fog-index measurement of customer reviews of the Russian Agricultural Bank. <em>IOP Conference Series: Earth and Environmental Science</em>, <em>548</em>(2), 022046. https://doi.org/10.1088/1755-1315/548/2/022046</p>
+<p>Rossiello, G., Basile, P., &amp; Semeraro, G. (2017). <em>Centroid-based Text Summarization through Compositionality of Word Embeddings</em> (pp.&nbsp;12–21). Association for Computational Linguistics. https://aclanthology.org/W17-1003.pdf</p>
+<p>Schler, J., Koppel, M., Shlomo Argamon, &amp; Pennebaker, J. W. (2005). Effects of Age and Gender on Blogging. <em>National Conference on Artificial Intelligence</em>, 199–205.</p>
+<p>Sohrab, M. G., Miwa, M., &amp; Sasaki, Y. (2015). Centroid-Means-Embedding: An Approach to Infusing Word Embeddings into Features for Text Classification. <em>Lecture Notes in Computer Science</em>, 289–300. https://doi.org/10.1007/978-3-319-18038-0_23</p>
+<p>Stamatatos, E. (2009). A survey of modern authorship attribution methods. <em>Journal of the American Society for Information Science and Technology</em>, <em>60</em>(3), 538–556. https://doi.org/10.1002/asi.21001</p>
+<p>Wermer-Colan, A. (2023, November 22). <em>Research Guides: Stylometry Methods and Practices: Home</em>. Guides.temple.edu. https://guides.temple.edu/stylometryfordh</p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
