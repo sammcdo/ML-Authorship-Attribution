@@ -148,6 +148,8 @@ The final model tested was a Neural Network of the features in the dataset. It w
 
 The Neural Network approach could likely be improved by including a fixed sized pool from the embeddings (Sultana et al., 2024) of the text to incorporate some information about the actual words used in contrast to statistics about the words. This would allow some representation of the content of the document to be included in the Neural Network without needing a large vocabulary and the space complexity of including word counts in the dataset. BERT embeddings could be used for this, as well as other models and embedding types (Sultana et al., 2024).
 
+Overall, the use of stylometric features was comparable to models that used raw text as inputs. Because they are summary statistics, the stylometric features extracted from the text necessarily do not have as much data as is contained in the raw text. However, they also outperformed the methods based on the raw text. To some extent this seems to be because they focused the models on the information that was most unique in the text. However, the results also implies that the accuracy of the feature set based models could be improved by using a form of generalized text information that would allow the models to learn a larger variety of syntactic and semantic quirks of the authors that cannot be seen in general stylometric analysis.
+
 ## Conclusion
 
 This petition has shown that authorship classification is a simple task for Machine Learning. The results strongly showed that authorship can be determined both from raw textual input to a model and by features extracted from the texts. The feature engineering done for this dataset could be applied to new texts for a similar set up. The small dataset consisting of only 40 data points per class is a reasonable simulation of a real-world small dataset use case.
@@ -184,6 +186,8 @@ Jindal, P., & MacDermid, J. (2017). Assessing reading levels of health informati
 
 Kendall, M. G., Mosteller, F., & Wallace, D. L. (1966). Inference and Disputed Authorship: The Federalist. *Biometrics*, *22*(1), 200. https://doi.org/10.2307/2528232
 
+Kenter, T., Borisov, A., & de Rijke, M. (2016). *Siamese CBOW: Optimizing Word Embeddings for Sentence Representations*. ArXiv.org. https://arxiv.org/abs/1606.04640
+
 Khonji, M., Iraqi, Y., & Jones, A. (2015, May 1). *An evaluation of authorship attribution using random forests*. IEEE Xplore. https://doi.org/10.1109/ICTRC.2015.7156423
 
 Kincaid, J. P., Fishburne, J., Rogers, R. L., & Chissom, B. S. (1975, February 1). *Derivation of New Readability Formulas (Automated Readability Index, Fog Count and Flesch Reading Ease Formula) for Navy Enlisted Personnel*. Apps.dtic.mil. https://apps.dtic.mil/sti/citations/ADA006655
@@ -198,6 +202,8 @@ Mercer, D. (2017, October 25). *David L. Wallace, statistician who helped identi
 
 Plotnikov, A. V. (2020). Gunning fog-index measurement of customer reviews of the Russian Agricultural Bank. *IOP Conference Series: Earth and Environmental Science*, *548*(2), 022046. https://doi.org/10.1088/1755-1315/548/2/022046
 
+Rogers, A., Kovaleva, O., & Rumshisky, A. (2020). A Primer in BERTology: What we know about how BERT works. *ArXiv:2002.12327 \[Cs\]*. https://arxiv.org/abs/2002.12327
+
 Rossiello, G., Basile, P., & Semeraro, G. (2017). *Centroid-based Text Summarization through Compositionality of Word Embeddings* (pp. 12–21). Association for Computational Linguistics. https://aclanthology.org/W17-1003.pdf
 
 Schler, J., Koppel, M., Shlomo Argamon, & Pennebaker, J. W. (2005). Effects of Age and Gender on Blogging. *National Conference on Artificial Intelligence*, 199–205.
@@ -205,5 +211,7 @@ Schler, J., Koppel, M., Shlomo Argamon, & Pennebaker, J. W. (2005). Effects of A
 Sohrab, M. G., Miwa, M., & Sasaki, Y. (2015). Centroid-Means-Embedding: An Approach to Infusing Word Embeddings into Features for Text Classification. *Lecture Notes in Computer Science*, 289–300. https://doi.org/10.1007/978-3-319-18038-0_23
 
 Stamatatos, E. (2009). A survey of modern authorship attribution methods. *Journal of the American Society for Information Science and Technology*, *60*(3), 538–556. https://doi.org/10.1002/asi.21001
+
+Sultana, S. J., Hoque, M. N., Chy, A. N., & Md Hanif Seddiqui. (2024). *Enhanced Hate Speech Detection through Mean-Pooling in Embedding Fusion*. 1833–1838. https://doi.org/10.1109/iccit64611.2024.11021822
 
 Wermer-Colan, A. (2023, November 22). *Research Guides: Stylometry Methods and Practices: Home*. Guides.temple.edu. https://guides.temple.edu/stylometryfordh
