@@ -101,7 +101,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#random-forest-classifiers" id="toc-random-forest-classifiers" class="nav-link" data-scroll-target="#random-forest-classifiers">Random Forest Classifiers</a></li>
   <li><a href="#neural-network-classification" id="toc-neural-network-classification" class="nav-link" data-scroll-target="#neural-network-classification">Neural Network Classification</a></li>
   </ul></li>
-  <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion">Discussion</a></li>
+  <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion">Discussion</a>
+  <ul class="collapse">
+  <li><a href="#bert-1" id="toc-bert-1" class="nav-link" data-scroll-target="#bert-1">BERT</a></li>
+  <li><a href="#embedding-centroid" id="toc-embedding-centroid" class="nav-link" data-scroll-target="#embedding-centroid">Embedding Centroid</a></li>
+  <li><a href="#k-nearest-neighbors" id="toc-k-nearest-neighbors" class="nav-link" data-scroll-target="#k-nearest-neighbors">K-Nearest Neighbors</a></li>
+  <li><a href="#random-forest" id="toc-random-forest" class="nav-link" data-scroll-target="#random-forest">Random Forest</a></li>
+  <li><a href="#neural-network" id="toc-neural-network" class="nav-link" data-scroll-target="#neural-network">Neural Network</a></li>
+  <li><a href="#future-research" id="toc-future-research" class="nav-link" data-scroll-target="#future-research">Future Research</a></li>
+  </ul></li>
   <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
@@ -155,7 +163,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The dataset used for this demonstration is the Blog Authorship Corpus (Schler et al., 2006). The corpus itself has over six hundred thousand posts, all over 200 words long. This resource is well established in the authorship attribution field, being used as a test source in foundational works such as the creation of the BertAA model (Fabien et al., 2020).</p>
 <p>This dataset was then filtered to narrow down the number of authors being used in this experiment. The 15 authors with the highest total number of posts over 1000 words were selected. Each of these authors then had their top 40 longest works extracted. The works were then shortened to 1000 words each. This left the final dataset with 600 blog posts written by 15 distinct authors and each work being 1000 words long.</p>
 <p>The texts were also cleaned of their HTML embeds, ‘words’ made up only of symbols, and the word urlLink from cleaning of the data by the original authors.</p>
-<div id="ef111969" class="cell" data-execution_count="1">
+<div id="87111b77" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -163,7 +171,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(filename, index_col<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>df.head(n<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="1">
+<div class="cell-output cell-output-display" data-execution_count="4">
 <div>
 
 
@@ -261,16 +269,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="discussion" class="level2">
 <h2 class="anchored" data-anchor-id="discussion">Discussion</h2>
 <p>The results achieved by these models were impressive. There were two different model types that reached 90% accuracy in authorship attribution. However, each model likely has room for improvement.</p>
+<section id="bert-1" class="level3">
+<h3 class="anchored" data-anchor-id="bert-1">BERT</h3>
 <p>The BERT model most likely needed more training data. This would have included more samples and fewer classes. From how quickly it generalized, it seemed to be learning very well. It seemed to need more data to generalize. However, it was an effective baseline to evaluate the remaining models.</p>
-<p>The BERT model is a very popular choice as a base for any textual model because it automatically incorporates syntactic, semantic, and world knowledge (Rogers et al., 2020). BERT representations are known to follow a primitive form of syntactic structure automatically (Rogers et al., 2020). This means the embeddings can include information about parts of speech, phrasing and word roles (Rogers et al., 2020). Some research has shown that while it picks up on this information in the data, it seems not use it to make decisions, so it is likely incomplete (Rogers et al., 2020). Additionally, BERT has semantic knowledge, and it has learned frequent relationships between words in english usage (Rogers et al., 2020). BERT also has some knowledge of interactions commonly described between real world objects (Rogers et al., 2020). In some studies it can compete with knowledge base type implementations (Rogers et al., 2020). This knowledge is why it is often used as a starting point for so many linguistic analysis tasks.</p>
+<p>The BERT model is a very popular choice as a base for any textual model because it automatically incorporates syntactic, semantic, and world knowledge (Rogers et al., 2020). BERT representations are known to follow a primitive form of syntactic structure automatically (Rogers et al., 2020). This means the embeddings can include information about parts of speech, phrasing and word roles (Rogers et al., 2020). Some research has shown that while it picks up on this information in the data, it seems not use it to make decisions, so it is likely incomplete (Rogers et al., 2020). Additionally, BERT has semantic knowledge, and it has learned frequent relationships between words in english usage (Rogers et al., 2020). BERT also has some knowledge of interactions commonly described between real world objects (Rogers et al., 2020). In some studies it can compete with knowledge base type implementations (Rogers et al., 2020). This variety of information it has learned is why it is often used as a starting point for so many linguistic analysis tasks.</p>
+</section>
+<section id="embedding-centroid" class="level3">
+<h3 class="anchored" data-anchor-id="embedding-centroid">Embedding Centroid</h3>
 <p>The Embedding Centroid method was not effective enough for continued use. It may have use in comparison of two authors but it seemed to get confused by the large number of classes.</p>
 <p>Word embeddings are typically trained from a large set of unlabeled data (Kenter et al., 2016). Thus embeddings tend to be general purpose and usable for many tasks (Kenter et al., 2016). The idea of averaging the word embedding to get a sentence embedding is surprisingly effective and supported by literature (Kenter et al., 2016). Additionally, pooling the embeddings into a fixed size representation of a text has been used effectively (Sultana et al., 2024). The implementation used in this example is simpler than these implementations and suffered from inability to generalize because taking the mean embedding lost information or confused information needed for classification.</p>
+</section>
+<section id="k-nearest-neighbors" class="level3">
+<h3 class="anchored" data-anchor-id="k-nearest-neighbors">K-Nearest Neighbors</h3>
 <p>The KNN classification method consistently under performed, despite training. Different distance metrics and neighbors were ineffective. Dimensionality reduction with Principal Component Analysis was also ineffective. It might have been suffered from having too many irrelevant features that it could not filter out on its own.</p>
-<p>Another problem with the KNN approach can be seen in the visualization of the results with a Principal Component Analysis. This shows how the authors can have very different styles between documents. While the other models are able to learn what features are informative, the difference in style of some texts seems to make nearest neighbor style methods ineffective. This likely applied to the Embedding Centroid method to a smaller extent as well.</p>
+<p>Another problem with the KNN approach can be seen in the visualization of the results with a Principal Component Analysis. This shows how the authors can have very different styles between documents. While the other models are able to learn what features are informative, the difference in style of some texts seems to make nearest neighbor style methods ineffective. This likely applied to the Embedding Centroid method to a lesser extent as well.</p>
+</section>
+<section id="random-forest" class="level3">
+<h3 class="anchored" data-anchor-id="random-forest">Random Forest</h3>
 <p>The Random Forest classification worked excellently. It is much less affected by irrelevant data points. This might be helping it extract the most information from these models. A future improvement could be using boosted trees to see if the accuracy could be improved more.</p>
+</section>
+<section id="neural-network" class="level3">
+<h3 class="anchored" data-anchor-id="neural-network">Neural Network</h3>
 <p>The final model tested was a Neural Network of the features in the dataset. It was the most successful at classifying the authors. This is important because it is the most flexible for future applications. Compared to the baseline BERT model, this model was 7% more accurate in classification. This could be easily adapted for more authors and more data to create a very robust authorship attribution method.</p>
 <p>The Neural Network approach could likely be improved by including a fixed sized pool from the embeddings (Sultana et al., 2024) of the text to incorporate some information about the actual words used in contrast to statistics about the words. This would allow some representation of the content of the document to be included in the Neural Network without needing a large vocabulary and the space complexity of including word counts in the dataset. BERT embeddings could be used for this, as well as other models and embedding types (Sultana et al., 2024).</p>
+</section>
+<section id="future-research" class="level3">
+<h3 class="anchored" data-anchor-id="future-research">Future Research</h3>
 <p>Overall, the use of stylometric features was comparable to models that used raw text as inputs. Because they are summary statistics, the stylometric features extracted from the text necessarily do not have as much data as is contained in the raw text. However, they also outperformed the methods based on the raw text. To some extent this seems to be because they focused the models on the information that was most unique in the text. However, the results also implies that the accuracy of the feature set based models could be improved by using a form of generalized text information that would allow the models to learn a larger variety of syntactic and semantic quirks of the authors that cannot be seen in general stylometric analysis.</p>
+</section>
 </section>
 <section id="conclusion" class="level2">
 <h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
