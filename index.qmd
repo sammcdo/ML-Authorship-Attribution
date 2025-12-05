@@ -2,7 +2,7 @@
 title: "Authorship Attribution with Machine Learning"
 editor: visual
 author: Sam McDowell
-date: "12-04-2025"
+date: "12-05-2025"
 date-format: long
 format:
   html:
