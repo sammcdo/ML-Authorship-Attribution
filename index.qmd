@@ -132,13 +132,21 @@ The results achieved by these models were impressive. There were two different m
 
 The BERT model most likely needed more training data. This would have included more samples and fewer classes. From how quickly it generalized, it seemed to be learning very well. It seemed to need more data to generalize. However, it was an effective baseline to evaluate the remaining models.
 
+The BERT model is a very popular choice as a base for any textual model because it automatically incorporates syntactic, semantic, and world knowledge (Rogers et al., 2020). BERT representations are known to follow a primitive form of syntactic structure automatically (Rogers et al., 2020). This means the embeddings can include information about parts of speech, phrasing and word roles (Rogers et al., 2020). Some research has shown that while it picks up on this information in the data, it seems not use it to make decisions, so it is likely incomplete (Rogers et al., 2020). Additionally, BERT has semantic knowledge, and it has learned frequent relationships between words in english usage (Rogers et al., 2020). BERT also has some knowledge of interactions commonly described between real world objects (Rogers et al., 2020). In some studies it can compete with knowledge base type implementations (Rogers et al., 2020). This knowledge is why it is often used as a starting point for so many linguistic analysis tasks.
+
 The Embedding Centroid method was not effective enough for continued use. It may have use in comparison of two authors but it seemed to get confused by the large number of classes.
 
+Word embeddings are typically trained from a large set of unlabeled data (Kenter et al., 2016). Thus embeddings tend to be general purpose and usable for many tasks (Kenter et al., 2016). The idea of averaging the word embedding to get a sentence embedding is surprisingly effective and supported by literature (Kenter et al., 2016). Additionally, pooling the embeddings into a fixed size representation of a text has been used effectively (Sultana et al., 2024). The implementation used in this example is simpler than these implementations and suffered from inability to generalize because taking the mean embedding lost information or confused information needed for classification.
+
 The KNN classification method consistently under performed, despite training. Different distance metrics and neighbors were ineffective. Dimensionality reduction with Principal Component Analysis was also ineffective. It might have been suffered from having too many irrelevant features that it could not filter out on its own.
+
+Another problem with the KNN approach can be seen in the visualization of the results with a Principal Component Analysis. This shows how the authors can have very different styles between documents. While the other models are able to learn what features are informative, the difference in style of some texts seems to make nearest neighbor style methods ineffective. This likely applied to the Embedding Centroid method to a smaller extent as well.
 
 The Random Forest classification worked excellently. It is much less affected by irrelevant data points. This might be helping it extract the most information from these models. A future improvement could be using boosted trees to see if the accuracy could be improved more.
 
 The final model tested was a Neural Network of the features in the dataset. It was the most successful at classifying the authors. This is important because it is the most flexible for future applications. Compared to the baseline BERT model, this model was 7% more accurate in classification. This could be easily adapted for more authors and more data to create a very robust authorship attribution method.
+
+The Neural Network approach could likely be improved by including a fixed sized pool from the embeddings (Sultana et al., 2024) of the text to incorporate some information about the actual words used in contrast to statistics about the words. This would allow some representation of the content of the document to be included in the Neural Network without needing a large vocabulary and the space complexity of including word counts in the dataset. BERT embeddings could be used for this, as well as other models and embedding types (Sultana et al., 2024).
 
 ## Conclusion
 
